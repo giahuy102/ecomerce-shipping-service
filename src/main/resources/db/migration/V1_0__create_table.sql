@@ -1,63 +1,30 @@
-CREATE TABLE order_statuses (
-    id INTEGER,
-    status_name VARCHAR(255) UNIQUE NOT NULL,
-    color CHAR(7) UNIQUE NOT NULL,
-    created_by_staff_id UUID,
-    updated_by_staff_id UUID,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    CONSTRAINT pk_order_status PRIMARY KEY(id)
+CREATE TABLE product_shipping_infos (
+    id UUID,
+    product_id UUID NOT NULL,
+    product_weight NUMERIC NOT NULL,
+    product_volume NUMERIC NOT NULL,
+    CONSTRAINT pk_product_shipping_info PRIMARY KEY(id)
 );
 
-CREATE TABLE orders (
+CREATE TABLE shipping_methods (
     id UUID,
-    customer_id UUID,
-    order_status_id INTEGER,
-    order_approved_at DATE,
-    order_delivered_customer_date DATE,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    CONSTRAINT pk_order PRIMARY KEY(id),
-    CONSTRAINT fk_order_order_status
-        FOREIGN KEY(order_status_id)
-        REFERENCES order_statuses(id)
+    method_name VARCHAR(255) NOT NULL,
+    price_unit_weight NUMERIC NOT NULL,
+    price_unit_volume NUMERIC NOT NULL,
+    CONSTRAINT pk_shipping_method PRIMARY KEY(id)
+);
+
+CREATE TABLE shippings (
+    id UUID,
+    order_id UUID NOT NULL,
+    shipping_method_id UUID,
+    shipping_charge NUMERIC,
+    shipping_status VARCHAR(255),
+    shipping_time TIMESTAMP,
+    is_free_ship BOOL DEFAULT FALSE,
+    CONSTRAINT pk_shipping PRIMARY KEY(id),
+    CONSTRAINT fk_shipping_shipping_method
+        FOREIGN KEY(shipping_method_id)
+        REFERENCES shippings(id)
         ON DELETE SET NULL
-);
-
-CREATE TABLE order_items (
-    id UUID,
-    product_id UUID,
-    order_id UUID,
-    price DOUBLE PRECISION,
-    quantity INTEGER,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    CONSTRAINT pk_order_item PRIMARY KEY(id),
-    CONSTRAINT fk_order_item_order
-        FOREIGN KEY(order_id)
-        REFERENCES orders(id)
-        ON DELETE CASCADE
-);
-
-CREATE TABLE carts (
-    id UUID,
-    customer_id UUID,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    CONSTRAINT pk_cart PRIMARY KEY(id)
-);
-
-CREATE TABLE cart_items (
-    id UUID,
-    product_id UUID,
-    cart_id UUID,
-    price DOUBLE PRECISION,
-    quantity INTEGER,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    CONSTRAINT pk_cart_item PRIMARY KEY(id),
-    CONSTRAINT fk_cart_item_cart
-        FOREIGN KEY(cart_id)
-        REFERENCES carts(id)
-        ON DELETE CASCADE
 );
